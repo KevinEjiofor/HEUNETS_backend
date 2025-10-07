@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/DataBaseConfig");
 const adminRoutes = require('./routes/adminAuthRoutes');
+const workItemRoutes = require('./routes/workItemRoutes');
 
 
 
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api/admin', adminRoutes);
+app.use('/api/workitems', workItemRoutes);
 
 
 const PORT = process.env.PORT || 5000;

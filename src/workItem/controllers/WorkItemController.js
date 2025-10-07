@@ -35,6 +35,26 @@ class WorkItemController {
         }
     }
 
+    static async getAssigneeList(req, res) {
+        try {
+            const result = await WorkItemService.getAssigneeList();
+            return successResponse(res, result, 'Assignee list retrieved successfully');
+        } catch (error) {
+            console.error('Error fetching assignee list:', error);
+            return errorResponse(res, error.message || 'Failed to fetch assignee list', 400);
+        }
+    }
+
+    static async getAvailableUsers(req, res) {
+        try {
+            const result = await WorkItemService.getAvailableUsers();
+            return successResponse(res, result, 'Available users retrieved successfully');
+        } catch (error) {
+            console.error('Error fetching available users:', error);
+            return errorResponse(res, error.message || 'Failed to fetch available users', 400);
+        }
+    }
+
     static async getAllWorkItems(req, res) {
         try {
             const {
@@ -79,9 +99,8 @@ class WorkItemController {
         try {
             const { id } = req.params;
             const updateData = req.body;
-            const updatedBy = req.admin.id;
 
-            const result = await WorkItemService.updateWorkItem(id, updateData, updatedBy);
+            const result = await WorkItemService.updateWorkItem(id, updateData);
 
             return successResponse(res, result, 'Work item updated successfully');
         } catch (error) {
@@ -205,6 +224,20 @@ class WorkItemController {
         } catch (error) {
             console.error('Error fetching work item stats:', error);
             return errorResponse(res, error.message || 'Failed to fetch work item statistics', 400);
+        }
+    }
+
+    // NEW METHOD: Get current user's work item stats
+    static async getMyWorkItemStats(req, res) {
+        try {
+            const userId = req.admin.id;
+
+            const result = await WorkItemService.getMyWorkItemStats(userId);
+
+            return successResponse(res, result, 'Your work item statistics retrieved successfully');
+        } catch (error) {
+            console.error('Error fetching user work item stats:', error);
+            return errorResponse(res, error.message || 'Failed to fetch your work item statistics', 400);
         }
     }
 
