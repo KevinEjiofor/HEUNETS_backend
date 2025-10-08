@@ -20,7 +20,9 @@ const corsOptions = {
     credentials: true
 };
 
-app.use(cors(corsOptions))
+
+app.use(cors(corsOptions));
+
 
 app.use(express.json());
 
@@ -31,6 +33,7 @@ app.get("/health", (req, res) => {
         mongodb: "connected"
     });
 });
+
 
 app.get("/", (req, res) => {
     res.send("🚴 Welcome to the Heunets tracking System!");

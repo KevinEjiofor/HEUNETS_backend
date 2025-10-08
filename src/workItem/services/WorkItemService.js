@@ -287,7 +287,11 @@ class WorkItemService {
         })
             .populate('createdBy', 'firstName lastName email')
             .populate('assignedTo', 'firstName lastName email')
-            .sort('-dueDate');
+            .sort('-dueDate') || []; // Ensure workItems is always an array
+
+        if (!Array.isArray(workItems)) {
+            throw new Error('Expected workItems to be an array');
+        }
 
         return workItems.map(item => this._formatWorkItem(item));
     }

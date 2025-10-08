@@ -1,27 +1,30 @@
 const nodemailer = require('nodemailer');
 const { EMAIL_USER, EMAIL_PASS } = process.env;
+
 const createTransporter = () => {
     try {
         return nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
             auth: {
                 user: EMAIL_USER,
                 pass: EMAIL_PASS,
             },
-            pool: true,
-            maxConnections: 3,
-            maxMessages: 50,
-            rateDelta: 1000,
-            rateLimit: 3,
+            pool: false,
+            maxConnections: 1,
+            maxMessages: 1,
             tls: {
-                rejectUnauthorized: false
+                rejectUnauthorized: false,
+                ciphers: 'SSLv3'
             },
-            connectionTimeout: 10000,
-            socketTimeout: 10000,
-            greetingTimeout: 10000
+            connectionTimeout: 60000,
+            socketTimeout: 60000,
+            greetingTimeout: 60000,
+            debug: false,
+            logger: false
         });
     } catch (error) {
-        console.error('Email transporter creation failed:', error);
         throw new Error('Email service configuration error');
     }
 };
@@ -47,32 +50,19 @@ const sendEmail = async (to, subject, text, html = null, retries = 3) => {
                 subject,
                 text,
                 ...(html && { html }),
-                headers: {
-                    'X-Priority': '1',
-                    'X-MSMail-Priority': 'High',
-                    'X-Mailer': 'Admin System v1.0'
-                }
             };
 
-            const info = await transporter.sendMail(mailOptions);
-            return {
-                success: true,
-                messageId: info.messageId,
-                response: info.response
-            };
-
+            await transporter.sendMail(mailOptions);
+            return;
         } catch (error) {
             lastError = error;
-            console.error(`Email attempt ${attempt} failed:`, error.message);
-
             if (attempt < retries) {
-                await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
-                continue;
+                await new Promise(resolve => setTimeout(resolve, attempt * 2000));
             }
         }
     }
 
-    throw new Error(`Email delivery failed after ${retries} attempts: ${lastError.message}`);
+    throw new Error(`Email delivery failed: ${lastError.message}`);
 };
 
 const testEmailConnection = async () => {

@@ -166,10 +166,11 @@ Admin Team`
         const rawResetToken = admin.createPasswordResetToken();
         await admin.save();
 
-        await sendEmail(
-            email,
-            'Password Reset Request',
-            `Hi ${admin.firstName} ${admin.lastName},
+        try {
+            await sendEmail(
+                email,
+                'Password Reset Request',
+                `Hi ${admin.firstName} ${admin.lastName},
 
 Use this token to reset your password:
 ${rawResetToken}
@@ -178,7 +179,12 @@ This token will expire in 10 minutes.
 
 Best regards,
 Admin Team`
-        );
+            );
+            console.log(`Password reset email sent successfully to ${email}`);
+        } catch (error) {
+            console.error(`Password reset email failed for ${email}:`, error.message);
+
+        }
 
         return { message: 'Password reset token sent to email' };
     }
